@@ -1,0 +1,73 @@
+{
+  "languageName": "English",
+  "appTitle": "Rust Server Control Center",
+  "headerTitle": "RUST SERVER CONTROL CENTER",
+  "headerSubtitle": "CREATE  •  CONFIGURE  •  OPERATE RUST SERVERS",
+  "navigation": [
+    "DASHBOARD",
+    "SERVERS",
+    "NETWORK & FRIENDS",
+    "WORLD",
+    "PLUGINS & MODES",
+    "SETTINGS",
+    "PLAYERS",
+    "HEALTH",
+    "OPERATIONS & LOGS"
+  ],
+  "instancesTitle": "SERVER INSTANCES",
+  "instancesSubtitle": "Create independent servers, choose which one to start, and manage their ports.",
+  "launchSelected": "START SELECTED",
+  "dashboardStart": "START",
+  "launchEnabled": "START ENABLED",
+  "openManager": "OPEN INSTANCE MANAGER",
+  "stopSelected": "STOP SELECTED",
+  "stopAll": "STOP ALL",
+  "joinSelected": "JOIN SELECTED",
+  "newInstance": "NEW",
+  "duplicateInstance": "DUPLICATE",
+  "saveInstance": "SAVE",
+  "removeInstance": "REMOVE",
+  "multiWarning": "EXPERIMENTAL: each RustDedicated process may use 5–8 GB of RAM. Vanilla worlds are isolated by identity; multiple modded servers require fully isolated runtimes. Use unique ports, test without players, and keep backups.",
+  "navigationGroups": [
+    "RUN",
+    "CONFIGURE",
+    "MONITOR"
+  ],
+  "diagnostic": {
+    "title": "GLOBAL DIAGNOSTICS",
+    "subtitle": "One view to check installation, profiles, security, backups, and automation.",
+    "run": "RUN CHECKS",
+    "repair": "SAFE REPAIR",
+    "export": "EXPORT"
+  },
+  "onboarding": {
+    "title": "SET UP YOUR RUST SERVER THE RIGHT WAY",
+    "subtitle": "Five steps: hardware, environment, Rust Dedicated, first server, and connectivity. Every choice can be changed later.",
+    "finish": "FINISH SETUP",
+    "later": "LATER",
+    "diagnostic": "OPEN DIAGNOSTICS",
+    "repair": "FIX THE PROBLEM"
+  },
+  "subTabs": {
+    "0": "Overview",
+    "1": "Instances",
+    "9": "Network & ports",
+    "20": "Remote access",
+    "12": "Friend test",
+    "2": "Maps & seeds",
+    "16": "Rates & multipliers",
+    "3": "Wipes & backups",
+    "4": "Extensions",
+    "21": "Catalog",
+    "5": "Game modes",
+    "6": "Configuration",
+    "7": "Moderation",
+    "8": "Statistics",
+    "19": "Monitoring",
+    "22": "PC health",
+    "17": "Global diagnostics",
+    "14": "Operations",
+    "10": "Logs & maintenance",
+    "23": "Lobby & maps"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "rust-duel",
+  "plugin": { "fileBase": "RustDuel", "displayName": "Duels & tournois", "version": "2.2.0", "category": "mode", "capabilities": ["duel"] },
+  "config": { "fileName": "", "reloadOnSave": false, "settings": [] },
+  "actions": [
+    { "id": "status", "label": "ÉTAT DES DUELS", "kind": "rcon", "command": "duel.debug", "confirm": false },
+    { "id": "tournament", "label": "LANCER LE TOURNOI", "kind": "rcon", "command": "duel.tournament.start", "confirm": false },
+    { "id": "preview", "label": "APERÇU DE L’ARÈNE", "kind": "rcon", "command": "duel.arena.preview", "confirm": false },
+    { "id": "stop-tournament", "label": "ARRÊTER LE TOURNOI", "kind": "rcon", "command": "duel.tournament.stop", "confirm": true },
+    { "id": "stop", "label": "ARRÊTER LES DUELS", "kind": "rcon", "command": "duel.stop", "confirm": true }
+  ]
+}

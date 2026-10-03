@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "rust-gun-game",
+  "plugin": { "fileBase": "RustGunGame", "displayName": "Gun Game", "version": "2.1.0", "category": "mode", "capabilities": ["gungame"] },
+  "config": { "fileName": "", "reloadOnSave": false, "settings": [] },
+  "actions": [
+    { "id": "status", "label": "ÉTAT DU MODE", "kind": "rcon", "command": "gg", "confirm": false },
+    { "id": "start", "label": "LANCER GUN GAME", "kind": "rcon", "command": "ggforce", "confirm": false },
+    { "id": "arena", "label": "NOUVELLE ARÈNE", "kind": "rcon", "command": "ggarena.random", "confirm": true },
+    { "id": "debug", "label": "DIAGNOSTIC", "kind": "rcon", "command": "ggdebug", "confirm": false },
+    { "id": "stop", "label": "ARRÊTER LE MODE", "kind": "rcon", "command": "gg.stop", "confirm": true }
+  ]
+}

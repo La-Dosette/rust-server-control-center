@@ -1,0 +1,78 @@
+name: Publish standalone release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+jobs:
+  build-and-publish:
+    runs-on: windows-latest
+    env:
+      WINDOWS_CERTIFICATE_BASE64: ${{ secrets.WINDOWS_CERTIFICATE_BASE64 }}
+      WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Build and validate portable package
+        shell: powershell
+        run: |
+          $version = '${{ github.ref_name }}'.TrimStart('v')
+          ./Build-Standalone.ps1 -Version $version -OutputRoot ./dist-release
+      - name: Sign PowerShell files when a Windows certificate is configured
+        if: ${{ env.WINDOWS_CERTIFICATE_BASE64 != '' }}
+        shell: powershell
+        run: |
+          $version = '${{ github.ref_name }}'.TrimStart('v')
+          ./scripts/Sign-Release.ps1 -PackageRoot "./dist-release/RustServerControlCenter-Portable-v$version" -CertificateBase64 $env:WINDOWS_CERTIFICATE_BASE64 -CertificatePassword $env:WINDOWS_CERTIFICATE_PASSWORD
+      - name: Build the single Windows executable
+        shell: powershell
+        run: |
+          $version = '${{ github.ref_name }}'.TrimStart('v')
+          ./Build-SingleExe.ps1 -Version $version -PortableZip "./dist-release/RustServerControlCenter-Portable-v$version.zip" -OutputPath "./dist-release/RustServerControlCenter-v$version.exe"
+          ./Build-WindowsInstaller.ps1 -Version $version -PortableZip "./dist-release/RustServerControlCenter-Portable-v$version.zip" -OutputPath "./dist-release/RustServerControlCenter-Setup-v$version.exe"
+      - name: Sign the Windows executable when a certificate is configured
+        if: ${{ env.WINDOWS_CERTIFICATE_BASE64 != '' }}
+        shell: powershell
+        run: |
+          $version = '${{ github.ref_name }}'.TrimStart('v')
+          ./scripts/Sign-Executable.ps1 -ExecutablePath "./dist-release/RustServerControlCenter-v$version.exe" -CertificateBase64 $env:WINDOWS_CERTIFICATE_BASE64 -CertificatePassword $env:WINDOWS_CERTIFICATE_PASSWORD
+          ./scripts/Sign-Executable.ps1 -ExecutablePath "./dist-release/RustServerControlCenter-Setup-v$version.exe" -CertificateBase64 $env:WINDOWS_CERTIFICATE_BASE64 -CertificatePassword $env:WINDOWS_CERTIFICATE_PASSWORD
+      - name: Validate the final package
+        shell: powershell
+        run: |
+          $version = '${{ github.ref_name }}'.TrimStart('v')
+          ./scripts/Test-Release.ps1 -PackageRoot "./dist-release/RustServerControlCenter-Portable-v$version"
+          ./scripts/Test-ControlCenterReliability.ps1
+      - name: Attest release provenance
+        uses: actions/attest@v4
+        with:
+          subject-path: |
+            ./dist-release/RustServerControlCenter-Portable-*.zip
+            ./dist-release/RustServerControlCenter-*.exe
+      - name: Create GitHub release and upload verified assets
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $tag = '${{ github.ref_name }}'
+          $version = $tag.TrimStart('v')
+          $zip = "./dist-release/RustServerControlCenter-Portable-v$version.zip"
+          $sha = "$zip.sha256"
+          $exe = "./dist-release/RustServerControlCenter-v$version.exe"
+          $exeSha = "$exe.sha256"
+          $setup = "./dist-release/RustServerControlCenter-Setup-v$version.exe"
+          $setupSha = "$setup.sha256"
+          $prerelease = $version -match '-'
+          gh release view $tag 2>$null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload $tag $zip $sha $exe $exeSha $setup $setupSha --clobber
+          } else {
+            $arguments = @('release','create',$tag,$zip,$sha,$exe,$exeSha,$setup,$setupSha,'--verify-tag','--generate-notes','--title',"Rust Server Control Center $tag")
+            if ($prerelease) { $arguments += '--prerelease' }
+            & gh @arguments
+          }

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "id": "rust-stats",
+  "plugin": { "fileBase": "RustStats", "displayName": "Statistiques des modes", "version": "1.0.0", "category": "administration", "capabilities": [] },
+  "config": { "fileName": "", "reloadOnSave": false, "settings": [] },
+  "actions": [
+    { "id": "dump", "label": "AFFICHER LES STATISTIQUES", "kind": "rcon", "command": "stats.dump", "confirm": false }
+  ]
+}

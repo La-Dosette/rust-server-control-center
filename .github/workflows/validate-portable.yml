@@ -1,0 +1,49 @@
+name: Validate portable release
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      install_rust:
+        description: 'Télécharger réellement Rust Dedicated pendant le test'
+        required: false
+        default: false
+        type: boolean
+      launch_rust:
+        description: 'Démarrer aussi le premier serveur (implique install_rust)'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Build portable package
+        shell: powershell
+        run: ./Build-Standalone.ps1 -Version ci -OutputRoot ./dist-ci
+      - name: Validate scripts, XAML and privacy
+        shell: powershell
+        run: ./scripts/Test-Release.ps1 -PackageRoot ./dist-ci/RustServerControlCenter-Portable-vci
+      - name: Test backups, migrations, scheduler and diagnostics
+        shell: powershell
+        run: ./scripts/Test-ControlCenterReliability.ps1
+      - name: Test first-run experience on a clean Windows runner
+        shell: powershell
+        run: |
+          $arguments = @{
+            PackageRoot = './dist-ci/RustServerControlCenter-Portable-vci'
+            OutputRoot = './artifacts/first-run'
+            KeepFixture = $true
+          }
+          if ('${{ inputs.install_rust }}' -eq 'true') { $arguments.InstallRust = $true }
+          if ('${{ inputs.launch_rust }}' -eq 'true') { $arguments.InstallRust = $true; $arguments.LaunchRust = $true }
+          ./scripts/Test-FirstRunExperience.ps1 @arguments
+      - name: Upload first-run report and captures
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: first-run-windows
+          path: ./artifacts/first-run/artifacts

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "id": "rust-game-hub",
+  "plugin": { "fileBase": "RustGameHub", "displayName": "Lobby & modes compétitifs", "version": "1.3.0", "category": "mode", "capabilities": ["competitive"] },
+  "config": { "fileName": "", "reloadOnSave": false, "settings": [] },
+  "actions": [
+    { "id": "status", "label": "ÉTAT DES MODES", "kind": "rcon", "command": "dashboard.modes", "confirm": false },
+    { "id": "lobby", "label": "RECONSTRUIRE LE LOBBY", "kind": "rcon", "command": "lobby.rebuild", "confirm": true },
+    { "id": "debug", "label": "DIAGNOSTIC", "kind": "rcon", "command": "event.debug", "confirm": false },
+    { "id": "stop", "label": "ARRÊTER L’ÉVÉNEMENT", "kind": "rcon", "command": "event.stop", "confirm": true }
+  ]
+}

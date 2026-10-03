@@ -1,0 +1,51 @@
+{
+  "languageName": "Français",
+  "appTitle": "Rust Server Control Center",
+  "headerTitle": "RUST SERVER CONTROL CENTER",
+  "headerSubtitle": "CRÉER  •  CONFIGURER  •  PILOTER DES SERVEURS RUST",
+  "navigation": [
+    "TABLEAU DE BORD",
+    "SERVEURS",
+    "RÉSEAU & AMIS",
+    "MONDE",
+    "PLUGINS & MODES",
+    "RÉGLAGES",
+    "JOUEURS",
+    "SANTÉ",
+    "OPÉRATIONS & LOGS"
+  ],
+  "instancesTitle": "INSTANCES DE SERVEUR",
+  "instancesSubtitle": "Crée plusieurs serveurs indépendants, choisis lequel lancer et contrôle leurs ports.",
+  "launchSelected": "LANCER LA SÉLECTION",
+  "dashboardStart": "DÉMARRER",
+  "launchEnabled": "LANCER LES ACTIVÉES",
+  "openManager": "OUVRIR LE GESTIONNAIRE",
+  "stopSelected": "ARRÊTER LA SÉLECTION",
+  "stopAll": "ARRÊTER TOUTES",
+  "joinSelected": "REJOINDRE LA SÉLECTION",
+  "newInstance": "NOUVELLE",
+  "duplicateInstance": "DUPLIQUER",
+  "saveInstance": "ENREGISTRER",
+  "removeInstance": "RETIRER",
+  "multiWarning": "EXPÉRIMENTAL : plusieurs RustDedicated peuvent consommer 5 à 8 Go de RAM chacun. Les mondes vanilla sont séparés par identité ; plusieurs serveurs moddés exigent des runtimes complets isolés. Utilise des ports uniques, teste sans joueurs et garde des sauvegardes.",
+  "navigationGroups": [
+    "PILOTER",
+    "CONFIGURER",
+    "SURVEILLER"
+  ],
+  "diagnostic": {
+    "title": "DIAGNOSTIC GLOBAL",
+    "subtitle": "Une seule vue pour vérifier l’installation, les profils, la sécurité, les sauvegardes et l’automatisation.",
+    "run": "ANALYSER",
+    "repair": "RÉPARATION SÛRE",
+    "export": "EXPORTER"
+  },
+  "onboarding": {
+    "title": "TON SERVEUR, BIEN CONFIGURÉ DÈS LE DÉPART",
+    "subtitle": "Cinq étapes : matériel, environnement, Rust Dedicated, premier serveur et connexion. Chaque choix reste modifiable plus tard.",
+    "finish": "TERMINER LA CONFIGURATION",
+    "later": "PLUS TARD",
+    "diagnostic": "OUVRIR LE DIAGNOSTIC",
+    "repair": "RÉPARER LE PROBLÈME"
+  }
+}

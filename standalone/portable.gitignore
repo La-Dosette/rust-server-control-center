@@ -1,0 +1,15 @@
+.rcon-password.txt
+server/
+steamcmd/
+logs/
+backups/
+carbon/
+*.log
+*.map
+*.sav
+*.sav.*
+*.db
+*.db-shm
+*.db-wal
+instances.json.bak-*
+CONNEXION-AMIS.txt

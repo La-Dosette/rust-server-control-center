@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "rust-rates",
+  "plugin": { "fileBase": "RustRates", "displayName": "Rust Rates", "version": "1.0.0", "category": "gameplay", "capabilities": [] },
+  "config": {
+    "fileName": "RustRates.json",
+    "reloadOnSave": true,
+    "settings": [
+      { "id": "global", "path": "MultiplicateurGlobal", "label": "Multiplicateur global", "description": "Base appliquée aux systèmes activés.", "type": "number", "default": 1, "min": 0.1, "max": 100 },
+      { "id": "gather", "path": "AppliquerRecolte", "label": "Récolte", "description": "Applique le multiplicateur aux ressources récoltées.", "type": "boolean", "default": true },
+      { "id": "pickup", "path": "AppliquerRamassage", "label": "Ramassage", "description": "Applique le multiplicateur aux objets ramassés.", "type": "boolean", "default": true },
+      { "id": "stacks", "path": "AppliquerPiles", "label": "Piles agrandies", "description": "Modifie la taille maximale des piles.", "type": "boolean", "default": false },
+      { "id": "stack-multiplier", "path": "MultiplicateurPiles", "label": "Multiplicateur des piles", "type": "number", "default": 1, "min": 1, "max": 100 },
+      { "id": "craft", "path": "AppliquerFabrication", "label": "Fabrication accélérée", "type": "boolean", "default": false },
+      { "id": "craft-multiplier", "path": "MultiplicateurFabrication", "label": "Vitesse de fabrication", "type": "number", "default": 1, "min": 0.1, "max": 100 },
+      { "id": "smelt", "path": "AppliquerFonte", "label": "Fonte accélérée", "type": "boolean", "default": false },
+      { "id": "smelt-multiplier", "path": "MultiplicateurFonte", "label": "Vitesse de fonte", "type": "number", "default": 1, "min": 0.1, "max": 100 }
+    ]
+  },
+  "actions": [
+    { "id": "status", "label": "ÉTAT DES TAUX", "kind": "rcon", "command": "rates", "confirm": false },
+    { "id": "json", "label": "EXPORT JSON", "kind": "rcon", "command": "rates.json", "confirm": false }
+  ]
+}

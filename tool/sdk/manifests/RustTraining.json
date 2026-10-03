@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "rust-training",
+  "plugin": { "fileBase": "RustTraining", "displayName": "Entraînement", "version": "1.0.0", "category": "mode", "capabilities": ["training"] },
+  "config": { "fileName": "", "reloadOnSave": false, "settings": [] },
+  "actions": [
+    { "id": "status", "label": "ÉTAT ENTRAÎNEMENT", "kind": "rcon", "command": "training", "confirm": false },
+    { "id": "start", "label": "LANCER L’ENTRAÎNEMENT", "kind": "rcon", "command": "training.force", "confirm": false },
+    { "id": "validate", "label": "VALIDER LA ZONE", "kind": "rcon", "command": "training.validate", "confirm": false },
+    { "id": "debug", "label": "DIAGNOSTIC", "kind": "rcon", "command": "training.debug", "confirm": false },
+    { "id": "stop", "label": "ARRÊTER LE MODE", "kind": "rcon", "command": "training.stop", "confirm": true }
+  ]
+}

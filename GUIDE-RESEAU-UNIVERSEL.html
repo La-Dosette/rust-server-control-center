@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Guide universel — héberger un serveur Rust chez soi</title>
+  <style>
+    :root {
+      --bg:#0f0e0c; --surface:#191714; --surface-2:#211c18; --line:#39332c;
+      --text:#ede4d5; --muted:#a29a90; --red:#d34a2f; --red-dark:#7b241c;
+      --amber:#f3c06d; --green:#72d79b; --danger:#ff8b78; --max:1180px;
+    }
+    * { box-sizing:border-box }
+    html { scroll-behavior:smooth }
+    body { margin:0; background:var(--bg); color:var(--text); font:16px/1.55 "Segoe UI",Arial,sans-serif }
+    a { color:var(--amber); text-decoration-thickness:1px; text-underline-offset:3px }
+    a:hover { color:#ffe0a3 }
+    button,select,input { font:inherit }
+    button { cursor:pointer }
+    .top { background:linear-gradient(100deg,var(--red),#a92e21 70%,#6d1e19); border-bottom:1px solid #ed7959 }
+    .top-inner { max-width:var(--max); margin:auto; min-height:82px; padding:14px 24px; display:flex; align-items:center; justify-content:space-between; gap:24px }
+    .brand { display:flex; align-items:center; gap:14px }
+    .mark { width:48px; height:48px; display:grid; place-items:center; border:2px solid #fff0dc; color:#fff0dc; font-weight:900; font-size:21px; transform:rotate(45deg) }
+    .mark span { transform:rotate(-45deg) }
+    .brand strong { display:block; font-size:23px; letter-spacing:.02em }
+    .brand small { color:#ffd1bf; text-transform:uppercase; letter-spacing:.08em }
+    .top nav { display:flex; gap:18px; flex-wrap:wrap }
+    .top nav a { color:#fff1dc; text-decoration:none; font-size:13px; font-weight:700; text-transform:uppercase }
+    main { max-width:var(--max); margin:auto; padding:46px 24px 80px }
+    h1,h2,h3 { margin:0; line-height:1.1; font-family:"Arial Narrow","Bahnschrift SemiCondensed","Segoe UI",sans-serif }
+    h1 { max-width:880px; font-size:clamp(42px,7vw,78px); color:#fff1dc; letter-spacing:-.035em }
+    h2 { margin-top:64px; font-size:34px; color:#e65a38 }
+    h3 { font-size:21px }
+    .lead { max-width:830px; margin:20px 0 0; font-size:20px; color:#c8beb1 }
+    .updated { margin-top:18px; color:#857c72; font-size:13px }
+    .quick { margin:34px 0 0; display:grid; grid-template-columns:repeat(5,1fr); border:1px solid var(--line); background:var(--surface) }
+    .quick article { padding:22px; border-right:1px solid var(--line) }
+    .quick article:last-child { border:0 }
+    .step { display:block; color:var(--red); font-weight:900; font-size:12px; letter-spacing:.12em; margin-bottom:9px }
+    .quick strong { display:block; font-size:17px; margin-bottom:6px }
+    .quick p { margin:0; color:var(--muted); font-size:14px }
+    .note { margin-top:24px; padding:18px 20px; border-left:4px solid var(--amber); background:#201b14; color:#ddd2c2 }
+    .note.danger { border-color:var(--danger); background:#261714 }
+    .rules { width:100%; border-collapse:collapse; margin-top:20px; background:var(--surface); border:1px solid var(--line) }
+    .rules th,.rules td { padding:14px 16px; border-bottom:1px solid var(--line); text-align:left }
+    .rules th { color:#b7aea3; background:#29241f; font-size:12px; letter-spacing:.08em }
+    .rules code { color:var(--amber); font:700 15px Consolas,monospace }
+    .good { color:var(--green) } .warn { color:var(--amber) } .bad { color:var(--danger) }
+    .actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:18px }
+    .btn { border:0; border-radius:4px; padding:11px 16px; background:var(--red); color:white; font-weight:800; text-transform:uppercase; font-size:13px }
+    .btn.alt { background:#37312a }
+    .btn:hover { filter:brightness(1.13) }
+    .copy-status { align-self:center; color:var(--green); min-height:24px }
+    .checks { margin-top:20px; display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--line); border:1px solid var(--line) }
+    .checks article { background:var(--surface); padding:22px }
+    .checks p,.checks li { color:var(--muted) }
+    .checks ol,.checks ul { padding-left:20px; margin-bottom:0 }
+    .finder { margin-top:24px; padding:18px; background:var(--surface-2); border:1px solid var(--line); display:grid; grid-template-columns:1fr 260px auto; gap:12px; position:sticky; top:0; z-index:5 }
+    .finder input,.finder select { width:100%; color:var(--text); background:#0e0d0b; border:1px solid #51483e; padding:11px 12px; border-radius:3px }
+    .counter { align-self:center; color:var(--amber); min-width:120px; text-align:right; font-weight:700 }
+    .country { margin-top:30px; border-top:1px solid var(--line) }
+    .country-title { display:flex; justify-content:space-between; align-items:baseline; padding:24px 2px 10px }
+    .country-title h3 { font-size:25px; color:#f0e4d3 }
+    .country-title span { color:#837a70; font-size:13px }
+    .provider { border:1px solid var(--line); border-bottom:0; background:var(--surface) }
+    .provider:last-child { border-bottom:1px solid var(--line) }
+    .provider summary { list-style:none; padding:16px 18px; display:flex; align-items:center; justify-content:space-between; gap:18px; cursor:pointer }
+    .provider summary::-webkit-details-marker { display:none }
+    .provider summary::after { content:"+"; color:var(--red); font-size:24px; font-weight:700 }
+    .provider[open] summary::after { content:"−" }
+    .provider summary strong { font-size:18px }
+    .provider summary span { color:#8f867c; font-size:13px }
+    .provider-body { padding:0 18px 18px; display:grid; grid-template-columns:1.15fr 1fr; gap:28px; border-top:1px solid #302a24 }
+    .provider-body div { padding-top:16px }
+    .provider-body p { margin:0 0 8px; color:#c9bfb2 }
+    .provider-body b { color:#f2e7d6 }
+    .provider-body .caution { color:var(--amber) }
+    .hidden { display:none !important }
+    .decision { margin-top:22px }
+    .decision details { border-bottom:1px solid var(--line); background:var(--surface); padding:0 18px }
+    .decision summary { cursor:pointer; padding:16px 0; color:#f0e4d3; font-weight:800 }
+    .decision p,.decision ul { color:var(--muted) }
+    .phrases { display:grid; grid-template-columns:repeat(2,1fr); gap:1px; background:var(--line); border:1px solid var(--line); margin-top:20px }
+    .phrases article { background:var(--surface); padding:18px }
+    .phrases small { display:block; color:var(--red); font-weight:800; text-transform:uppercase; margin-bottom:7px }
+    .sources { columns:2; column-gap:34px; padding-left:20px }
+    .sources li { break-inside:avoid; margin:0 0 10px; color:var(--muted) }
+    footer { border-top:1px solid var(--line); color:#81786f; padding:24px; text-align:center }
+    @media (max-width:900px) {
+      .top-inner { align-items:flex-start; flex-direction:column }
+      .quick { grid-template-columns:1fr 1fr }
+      .quick article { border-bottom:1px solid var(--line) }
+      .finder { grid-template-columns:1fr; position:static }
+      .counter { text-align:left }
+      .checks,.provider-body,.phrases { grid-template-columns:1fr }
+      .sources { columns:1 }
+    }
+    @media (max-width:560px) {
+      main { padding:30px 16px 60px }
+      .top-inner { padding:14px 16px }
+      .top nav { display:none }
+      .quick { grid-template-columns:1fr }
+      .quick article { border-right:0 }
+      .rules { display:block; max-width:100%; overflow-x:auto; white-space:nowrap; font-size:13px }
+      .rules th,.rules td { padding:10px 8px }
+    }
+    @media print {
+      :root { --bg:#fff; --surface:#fff; --surface-2:#fff; --line:#bbb; --text:#111; --muted:#444 }
+      .top,.finder,.actions,footer { display:none }
+      main { max-width:none; padding:0 }
+      h1 { color:#111; font-size:42px } h2 { break-after:avoid }
+      .provider { break-inside:avoid } .provider-body { display:block }
+      .provider:not([open]) .provider-body { display:grid }
+    }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="top-inner">
+      <div class="brand"><div class="mark"><span>R</span></div><div><strong>RUST SERVER NETWORK GUIDE</strong><small>Guide local — aucun compte requis</small></div></div>
+      <nav><a href="#procedure">Procédure</a><a href="#operateurs">Opérateurs</a><a href="#depannage">Dépannage</a><a href="#sources">Sources</a></nav>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <h1>Mettre ton serveur Rust en ligne, quelle que soit ta box.</h1>
+      <p class="lead">La méthode ne dépend pas vraiment du pays : il faut une IPv4 publique, une adresse locale stable et une redirection UDP vers le PC. Les menus changent selon l’opérateur ; les règles Rust restent les mêmes.</p>
+      <p class="updated">Guide vérifié le 11 août 2026. Les firmwares de box évoluent : utilise toujours le lien officiel de ton opérateur si un menu a changé.</p>
+      <div class="quick" id="procedure">
+        <article><span class="step">ÉTAPE 01</span><strong>Diagnostiquer</strong><p>Control Center → Réseau &amp; ports → Lancer le diagnostic.</p></article>
+        <article><span class="step">ÉTAPE 02</span><strong>Fixer l’IP LAN</strong><p>Réserve l’adresse IPv4 du PC dans le DHCP de la box.</p></article>
+        <article><span class="step">ÉTAPE 03</span><strong>Rediriger l’UDP</strong><p>28115 obligatoire, 28117 recommandé, vers le PC serveur.</p></article>
+        <article><span class="step">ÉTAPE 04</span><strong>Lancer Rust</strong><p>Démarre le profil « amis » et attends la fin du chargement.</p></article>
+        <article><span class="step">ÉTAPE 05</span><strong>Tester dehors</strong><p>Un ami ou un téléphone en 4G/5G teste la commande F1.</p></article>
+      </div>
+      <div class="note danger"><strong>Règle de sécurité :</strong> n’ouvre jamais le port RCON TCP 28116 dans la box. Il doit rester limité à <code>127.0.0.1</code>. N’utilise pas la DMZ et évite l’ouverture automatique UPnP quand une règle précise suffit.</div>
+    </section>
+
+    <section>
+      <h2>Les règles exactes à créer</h2>
+      <table class="rules">
+        <thead><tr><th>NOM</th><th>PROTOCOLE</th><th>PORT EXTERNE</th><th>PORT INTERNE</th><th>DESTINATION</th><th>RÔLE</th></tr></thead>
+        <tbody>
+          <tr><td>Rust Game</td><td><code>UDP</code></td><td><code>28115</code></td><td><code>28115</code></td><td>IPv4 LAN du PC</td><td class="good">Obligatoire</td></tr>
+          <tr><td>Rust Query</td><td><code>UDP</code></td><td><code>28117</code></td><td><code>28117</code></td><td>IPv4 LAN du PC</td><td class="warn">Recommandé</td></tr>
+          <tr><td>Rust RCON</td><td><code>TCP</code></td><td colspan="3"><strong>NE PAS OUVRIR</strong></td><td class="bad">Administration privée</td></tr>
+        </tbody>
+      </table>
+      <div class="actions">
+        <button class="btn" data-copy="Rust Game | UDP | externe 28115 | interne 28115 | destination IP locale du PC&#10;Rust Query | UDP | externe 28117 | interne 28117 | destination IP locale du PC&#10;Ne jamais ouvrir RCON TCP 28116.">Copier les règles</button>
+        <button class="btn alt" onclick="window.print()">Imprimer / enregistrer en PDF</button>
+        <span class="copy-status" id="copyStatus" aria-live="polite"></span>
+      </div>
+      <div class="checks">
+        <article><h3>Dans Windows</h3><ol><li>Lance le serveur avec le Control Center.</li><li>Le diagnostic doit voir UDP 28115 en écoute sur <code>0.0.0.0</code>.</li><li>Le pare-feu doit autoriser RustDedicated sur UDP 28115.</li><li>RCON TCP 28116 doit écouter uniquement sur <code>127.0.0.1</code>.</li></ol></article>
+        <article><h3>Dans la box</h3><ol><li>Note l’IPv4 LAN affichée dans le diagnostic.</li><li>Crée une réservation DHCP pour ce PC.</li><li>Ajoute les deux règles UDP vers cette même adresse.</li><li>Vérifie que l’IP WAN de la box correspond à l’IP publique affichée.</li></ol></article>
+      </div>
+    </section>
+
+    <section id="operateurs">
+      <h2>Trouver les menus de ton opérateur</h2>
+      <p class="lead">Recherche un pays, un opérateur ou un modèle de box. Les chemins marqués « indicatif » peuvent varier suivant le firmware ; le principe et les ports ne changent pas.</p>
+      <div class="finder">
+        <input id="search" type="search" placeholder="Ex. Orange, Freebox, Canada, Fritz, CGNAT…" aria-label="Rechercher un opérateur">
+        <select id="country" aria-label="Filtrer par pays"><option value="">Tous les pays</option><option>France</option><option>Belgique</option><option>Suisse</option><option>Royaume-Uni</option><option>Allemagne / Autriche</option><option>Espagne</option><option>Italie</option><option>Pays-Bas</option><option>Canada</option><option>États-Unis</option><option>Australie / Nouvelle-Zélande</option></select>
+        <div class="counter" id="counter">0 opérateur</div>
+      </div>
+
+      <div class="country" data-country-group="France"><div class="country-title"><h3>France</h3><span>Livebox · Freebox · SFR · Bbox</span></div>
+        <details class="provider" data-country="France" data-search="orange livebox nat pat france"><summary><strong>Orange — Livebox</strong><span>livebox / 192.168.1.1</span></summary><div class="provider-body"><div><p><b>Chemin :</b> interface Livebox → Paramètres avancés → Réseau → NAT/PAT.</p><p>Crée une IP fixe/réservation pour le PC, puis les règles UDP 28115 et 28117.</p></div><div><a href="https://assistance.orange.fr/livebox-modem/toutes-les-livebox-et-modems/installer-et-utiliser/piloter-et-parametrer-votre-materiel/le-parametrage-avance-reseau-nat-pat-ip/configurer-des-regles-nat-pat/livebox-4-configurer-les-regles-nat-pour-pouvoir-utiliser-un-jeu-ou-une-application-serveur_189538-735102" target="_blank" rel="noopener">Aide officielle Orange — NAT/PAT</a></div></div></details>
+        <details class="provider" data-country="France" data-search="free freebox freebox os ports dhcp france"><summary><strong>Free — Freebox</strong><span>mafreebox.freebox.fr / app Freebox Connect</span></summary><div class="provider-body"><div><p><b>Chemin :</b> Freebox Connect → Réseau → Paramètres réseau avancés → DHCP puis Redirection de port.</p><p>Dans Freebox OS : Paramètres de la Freebox → Mode avancé → Gestion des ports.</p></div><div><a href="https://assistance.free.fr/articles/1395" target="_blank" rel="noopener">Aide officielle Free — DHCP et redirections</a></div></div></details>
+        <details class="provider" data-country="France" data-search="sfr box 8 ipv4 ipv6 nat port france"><summary><strong>SFR — Box 8 / 8X</strong><span>192.168.1.1</span></summary><div class="provider-body"><div><p><b>IPv4 :</b> LAN → Baux statiques, puis Sécurité → Accès → Réseau v4 → Redirection des ports.</p><p class="caution">Si l’adresse WAN commence par 10.x ou si seule IPv6 est disponible, demande une IPv4 publique adaptée à l’hébergement.</p></div><div><a href="https://assistance.sfr.fr/internet-tel-fixe/box-8/se-connecter-en-ipv6-ipv4.html" target="_blank" rel="noopener">Aide officielle SFR — accès distant IPv4/IPv6</a></div></div></details>
+        <details class="provider" data-country="France" data-search="bouygues bbox nat pat redirection ports france"><summary><strong>Bouygues Telecom — Bbox</strong><span>mabbox.bytel.fr / 192.168.1.254</span></summary><div class="provider-body"><div><p><b>Chemin indicatif :</b> Services de la box → Redirection de ports / NAT-PAT, puis ajouter le PC et les deux règles UDP.</p><p class="caution">Si le menu est absent ou si l’IP WAN ne correspond pas à l’IP publique, demande au support une IPv4 publique sans CGNAT.</p></div><div><a href="https://www.bouyguestelecom.fr/assistance" target="_blank" rel="noopener">Assistance officielle Bouygues Telecom</a></div></div></details>
+      </div>
+
+      <div class="country" data-country-group="Belgique"><div class="country-title"><h3>Belgique</h3><span>Proximus · Telenet · Orange</span></div>
+        <details class="provider" data-country="Belgique" data-search="proximus bbox internet box port forwarding belgique"><summary><strong>Proximus — b-box / Internet Box</strong><span>Port forwarding / port mapping</span></summary><div class="provider-body"><div><p>Ouvre l’interface ou l’application de l’Internet Box, fixe l’IP du PC puis cherche <b>Port forwarding</b> ou <b>Port mapping</b>.</p><p>Destination : IPv4 LAN du PC ; protocole : UDP.</p></div><div><a href="https://www.proximus.be/support/en/id_sfaqr_ports_mapping/personal/support/internet/internet-at-home/advanced-settings/port-forwarding-on-your-b-box-or-internet-box.html" target="_blank" rel="noopener">Aide officielle Proximus</a></div></div></details>
+        <details class="provider" data-country="Belgique" data-search="telenet mytelenet modem port forwarding belgique"><summary><strong>Telenet</strong><span>MyTelenet</span></summary><div class="provider-body"><div><p><b>Chemin :</b> MyTelenet → paramètres avancés du modem → IPv4 firewall &amp; Port forwarding.</p><p>Le mode bridge est disponible sur certains modems si tu préfères gérer le NAT sur ton propre routeur.</p></div><div><a href="https://www2.telenet.be/residential/nl/klantenservice/internet/modem-en-andere-toestellen/geavanceerde-instellingen-van-je-wireless-modem.html" target="_blank" rel="noopener">Aide officielle Telenet</a></div></div></details>
+        <details class="provider" data-country="Belgique" data-search="orange belgium modem nat port forwarding belgique"><summary><strong>Orange Belgium</strong><span>Interface du modem</span></summary><div class="provider-body"><div><p><b>Chemin indicatif :</b> Advanced / Network → NAT ou Port forwarding.</p><p class="caution">Les offres mobiles/fixes sans IPv4 publique peuvent utiliser le CGNAT : contacte le support si l’IP WAN diffère.</p></div><div><a href="https://www.orange.be/fr/support" target="_blank" rel="noopener">Assistance officielle Orange Belgique</a></div></div></details>
+      </div>
+
+      <div class="country" data-country-group="Suisse"><div class="country-title"><h3>Suisse</h3><span>Swisscom · Sunrise · Salt</span></div>
+        <details class="provider" data-country="Suisse" data-search="swisscom internet box port forwarding suisse"><summary><strong>Swisscom — Internet-Box</strong><span>internetbox.swisscom.ch / 192.168.1.1</span></summary><div class="provider-body"><div><p>Connecte-toi au portail local de l’Internet-Box, active le mode expert si nécessaire puis cherche <b>Port forwarding</b>.</p><p>Une redirection ciblée est préférable à la DMZ.</p></div><div><a href="https://www.swisscom.ch/en/residential/help/device/home-network/wlan-box.html" target="_blank" rel="noopener">Accès et aide officielle Internet-Box</a></div></div></details>
+        <details class="provider" data-country="Suisse" data-search="sunrise connect box ipv4 cgnat port forwarding suisse"><summary><strong>Sunrise — Connect Box</strong><span>192.168.0.1</span></summary><div class="provider-body"><div><p><b>Chemin :</b> Advanced Settings → Security → Port forwarding.</p><p class="caution">Si le menu n’existe pas, la ligne peut être en IPv6/CGNAT. Demande au support le passage en IPv4 publique sans CGNAT.</p></div><div><a href="https://community.sunrise.ch/d/29779-connect-box-1-3-port-forwarding-port-weiterleitung" target="_blank" rel="noopener">Procédure Sunrise Connect Box</a></div></div></details>
+        <details class="provider" data-country="Suisse" data-search="salt fiber box port forwarding suisse"><summary><strong>Salt — Fiber Box</strong><span>salt.box / interface locale</span></summary><div class="provider-body"><div><p><b>Chemin indicatif :</b> Advanced → NAT / Port forwarding. Réserve d’abord l’IP du PC.</p><p class="caution">Demande une IPv4 publique au support si la connexion est partagée ou si aucune règle entrante n’est possible.</p></div><div><a href="https://fiber.salt.ch/fr/help/home" target="_blank" rel="noopener">Assistance officielle Salt Fiber</a></div></div></details>
+      </div>
+
+      <div class="country" data-country-group="Royaume-Uni"><div class="country-title"><h3>Royaume-Uni</h3><span>BT · Virgin Media · Sky · TalkTalk</span></div>
+        <details class="provider" data-country="Royaume-Uni" data-search="bt smart hub port forwarding uk"><summary><strong>BT — Smart Hub</strong><span>192.168.1.254</span></summary><div class="provider-body"><div><p><b>Chemin :</b> Advanced Settings → Firewall → Create a new port forwarding rule.</p><p>Sélectionne le PC, mets le même port interne/externe et choisis UDP.</p></div><div><a href="https://www.bt.com/help/broadband/learn-about-broadband/how-do-i-set-up-port-forwarding-on-my-bt-hub-" target="_blank" rel="noopener">Aide officielle BT</a></div></div></details>
+        <details class="provider" data-country="Royaume-Uni" data-search="virgin media hub port forwarding uk"><summary><strong>Virgin Media — Hub 3/4/5</strong><span>192.168.0.1</span></summary><div class="provider-body"><div><p><b>Chemin indicatif :</b> Advanced Settings → Security → Port forwarding.</p><p>En modem mode, l’interface passe généralement sur 192.168.100.1 et les règles doivent être créées sur ton routeur personnel.</p></div><div><a href="https://www.virginmedia.com/help/broadband/set-up-broadband" target="_blank" rel="noopener">Aide officielle Virgin Media Hub</a></div></div></details>
+        <details class="provider" data-country="Royaume-Uni" data-search="sky broadband hub port forwarding firewall uk"><summary><strong>Sky Broadband</strong><span>192.168.0.1</span></summary><div class="provider-body"><div><p><b>Chemin indicatif :</b> Security / Firewall → Services → ajouter le service UDP, puis Firewall Rules → associer le service au PC.</p><p>Les noms changent selon Sky Hub ou Max Hub.</p></div><div><a href="https://www.sky.com/help/home/broadband" target="_blank" rel="noopener">Assistance officielle Sky Broadband</a></div></div></details>
+        <details class="provider" data-country="Royaume-Uni" data-search="talktalk wifi hub port forwarding uk"><summary><strong>TalkTalk — Wi-Fi Hub</strong><span>192.168.1.1</span></summary><div class="provider-body"><div><p><b>Chemin indicatif :</b> See Internet Settings → Manage Advanced Settings → Access Control / Port forwarding.</p><p>Utilise une réservation DHCP avant de créer la règle.</p></div><div><a href="https://support.talktalk.co.uk/" target="_blank" rel="noopener">Assistance officielle TalkTalk</a></div></div></details>
+      </div>
+
+      <div class="country" data-country-group="Allemagne / Autriche"><div class="country-title"><h3>Allemagne / Autriche</h3><span>Telekom · Vodafone · FRITZ!Box</span></div>
+        <details class="provider" data-country="Allemagne / Autriche" data-search="telekom speedport portfreigabe portweiterleitung germany austria"><summary><strong>Deutsche Telekom — Speedport</strong><span>speedport.ip</span></summary><div class="provider-body"><div><p><b>Terme allemand :</b> Portfreigabe / Portweiterleitung. Cherche Internet → Portfreigaben, sélectionne le PC et ajoute UDP 28115/28117.</p><p>Supprime les règles inutilisées après un test temporaire.</p></div><div><a href="https://www.telekom.de/hilfe/internet-telefonie/sicherheit/speedport-sicher-machen-video" target="_blank" rel="noopener">Aide officielle Telekom — Portfreigaben</a></div></div></details>
+        <details class="provider" data-country="Allemagne / Autriche" data-search="vodafone station dual stack ds lite bridge portfreigabe germany"><summary><strong>Vodafone — Station</strong><span>192.168.0.1</span></summary><div class="provider-body"><div><p><b>Chemin indicatif :</b> Internet / Security → Port forwarding.</p><p class="caution">Avec DS-Lite, le menu peut manquer. Demande Dual Stack / IPv4 publique, ou passe en bridge mode avec un routeur personnel compatible.</p></div><div><a href="https://www.vodafone.de/hilfe/router/station.html" target="_blank" rel="noopener">Aide officielle Vodafone Station</a></div></div></details>
+        <details class="provider" data-country="Allemagne / Autriche" data-search="avm fritzbox fritz box port sharing permit access germany austria o2"><summary><strong>AVM FRITZ!Box — Telekom, O2, 1&amp;1, A1…</strong><span>fritz.box</span></summary><div class="provider-body"><div><p><b>Chemin :</b> Internet → Permit Access / Freigaben → Port Sharing / Portfreigaben → Add Device for Sharing.</p><p>Vérifie que la box dispose d’une IPv4 publique ; une FRITZ!Box ne peut pas contourner le CGNAT de l’opérateur.</p></div><div><a href="https://en.avm.de/service/" target="_blank" rel="noopener">Base de connaissances officielle AVM</a></div></div></details>
+      </div>
+
+      <div class="country" data-country-group="Espagne"><div class="country-title"><h3>Espagne</h3><span>Movistar · Orange · Vodafone</span></div>
+        <details class="provider" data-country="Espagne" data-search="movistar hgu smart wifi abrir puertos espagne"><summary><strong>Movistar — HGU / Smart WiFi</strong><span>192.168.1.1 / app Smart WiFi</span></summary><div class="provider-body"><div><p><b>Chemin :</b> interface locale → Puertos / Port forwarding, ou fonctions avancées de l’app Smart WiFi selon le modèle.</p><p class="caution">Le Portal Alejandra historique n’est plus disponible sur certaines lignes depuis 2026 : privilégie l’interface locale ou l’app.</p></div><div><a href="https://www.movistar.es/blog/router/abrir-puertos-router-movistar/" target="_blank" rel="noopener">Guide officiel Movistar</a></div></div></details>
+        <details class="provider" data-country="Espagne" data-search="orange livebox espagne abrir puertos nat pat"><summary><strong>Orange España — Livebox</strong><span>192.168.1.1</span></summary><div class="provider-body"><div><p><b>Chemin indicatif :</b> Configuración avanzada → Red / NAT-PAT / Redirección de puertos.</p><p>Crée un bail DHCP statique pour le PC avant les deux règles UDP.</p></div><div><a href="https://ayuda.orange.es/" target="_blank" rel="noopener">Assistance officielle Orange España</a></div></div></details>
+        <details class="provider" data-country="Espagne" data-search="vodafone station espagne redireccion puertos"><summary><strong>Vodafone España</strong><span>192.168.0.1</span></summary><div class="provider-body"><div><p><b>Chemin indicatif :</b> Internet → Redirección de puertos / Port mapping.</p><p class="caution">Sur une ligne 4G/5G ou CGNAT, demande une IPv4 publique ou utilise une solution de relais UDP.</p></div><div><a href="https://ayudacliente.vodafone.es/" target="_blank" rel="noopener">Assistance officielle Vodafone España</a></div></div></details>
+      </div>
+
+      <div class="country" data-country-group="Italie"><div class="country-title"><h3>Italie</h3><span>TIM · Vodafone · Fastweb</span></div>
+        <details class="provider" data-country="Italie" data-search="tim hub port mapping italia modem"><summary><strong>TIM — TIM HUB</strong><span>modemtelecom / 192.168.1.1</span></summary><div class="provider-body"><div><p><b>Chemin indicatif :</b> Internet / Servizi WAN → Port Mapping / IPv4 Port forwarding → Add new mapping.</p><p>Associe les règles à l’IPv4 locale réservée du PC.</p></div><div><a href="https://risorse.tim.it/content/dam/flytoco-areapubblica-aemfe/tim_it/assistenza/assistenza-tecnica/guide-e-manuali/c2/DMS3-CTC-25-527_v2.0_public.pdf" target="_blank" rel="noopener">Manuel officiel TIM HUB</a></div></div></details>
+        <details class="provider" data-country="Italie" data-search="fastweb fastgate myfastgate port mapping italia"><summary><strong>Fastweb — FASTGate / NeXXt</strong><span>myfastgate</span></summary><div class="provider-body"><div><p><b>Chemin FASTGate :</b> Avanzate → Configurazione Manuale Porte → Associa nuovo port mapping.</p><p class="caution">Demande une IP publique au support Fastweb si la ligne utilise une adresse partagée.</p></div><div><a href="https://www.fastweb.it/myfastweb/assistenza/guide.php/FASTGate/" target="_blank" rel="noopener">Guide officiel FASTGate</a></div></div></details>
+        <details class="provider" data-country="Italie" data-search="vodafone station italia inoltro porte port mapping"><summary><strong>Vodafone Italia — Station</strong><span>vodafone.station</span></summary><div class="provider-body"><div><p><b>Chemin indicatif :</b> Modalità esperto → Internet → Port forwarding / Associazione porte.</p><p>Le terme à rechercher est <b>inoltro porte</b> ou <b>port mapping</b>.</p></div><div><a href="https://www.vodafone.it/privati/area-supporto.html" target="_blank" rel="noopener">Assistance officielle Vodafone Italia</a></div></div></details>
+      </div>
+
+      <div class="country" data-country-group="Pays-Bas"><div class="country-title"><h3>Pays-Bas</h3><span>KPN · Ziggo</span></div>
+        <details class="provider" data-country="Pays-Bas" data-search="kpn box 12 port forwarding poort openzetten nederland"><summary><strong>KPN — Box 12 / Experia Box</strong><span>mijnmodem.kpn / 192.168.2.254</span></summary><div class="provider-body"><div><p>Connecte-toi au modem puis cherche <b>Port forwarding</b>, <b>NAT</b> ou <b>Poort openzetten</b>. Crée d’abord une réservation DHCP.</p><p>Les menus diffèrent entre Box 12 et Experia Box.</p></div><div><a href="https://www.kpn.com/service/internet/box-12-handleiding-en-hulp-bij-problemen" target="_blank" rel="noopener">Aide officielle KPN Box 12</a></div></div></details>
+        <details class="provider" data-country="Pays-Bas" data-search="ziggo smartwifi connect box ds lite ipv4 port forwarding nederland"><summary><strong>Ziggo — SmartWifi / Connect Box</strong><span>192.168.178.1 ou 192.168.0.1</span></summary><div class="provider-body"><div><p><b>Chemin :</b> Advanced Settings → Security → Port forwarding.</p><p class="caution">Si le menu manque avec IPv6 DS-Lite, demande au support un profil IPv4. Sinon la redirection IPv4 ne peut pas fonctionner.</p></div><div><a href="https://www.ziggo.nl/klantenservice/hulp-bij-gaming/nat-port-forwarding" target="_blank" rel="noopener">Aide officielle Ziggo</a></div></div></details>
+      </div>
+
+      <div class="country" data-country-group="Canada"><div class="country-title"><h3>Canada</h3><span>Bell · Rogers · TELUS · Vidéotron</span></div>
+        <details class="provider" data-country="Canada" data-search="bell home hub giga hub port forwarding canada"><summary><strong>Bell — Home Hub / Giga Hub</strong><span>192.168.2.1</span></summary><div class="provider-body"><div><p><b>Chemin indicatif :</b> Advanced Tools and Settings → Port Forwarding.</p><p>Choisis le PC, UDP, puis crée séparément 28115 et 28117. Si un routeur personnel est ajouté derrière le Hub, évite le double NAT.</p></div><div><a href="https://support.bell.ca/internet/products/home-hub-4000-modem" target="_blank" rel="noopener">Assistance officielle Bell</a></div></div></details>
+        <details class="provider" data-country="Canada" data-search="rogers ignite home connect gateway port forwarding canada"><summary><strong>Rogers — Ignite Gateway</strong><span>app Rogers Xfinity / Ignite Home Connect</span></summary><div class="provider-body"><div><p><b>Chemin indicatif :</b> WiFi → View WiFi equipment → Advanced Settings → Port forwarding.</p><p>Le PC doit apparaître comme équipement IPv4 connecté dans l’application.</p></div><div><a href="https://www.rogers.com/support/internet" target="_blank" rel="noopener">Assistance officielle Rogers Internet</a></div></div></details>
+        <details class="provider" data-country="Canada" data-search="telus network access hub wifi hub port forwarding canada"><summary><strong>TELUS — Network Access Hub / Wi-Fi Hub</strong><span>192.168.1.254</span></summary><div class="provider-body"><div><p><b>Chemin indicatif :</b> Firewall → Port Forwarding, puis service personnalisé UDP vers l’IPv4 du PC.</p><p>Avec un Boost Wi-Fi derrière le Network Access Hub, assure-toi de créer la règle sur l’équipement qui possède l’IP WAN.</p></div><div><a href="https://www.telus.com/en/support/topic/internet" target="_blank" rel="noopener">Assistance officielle TELUS Internet</a></div></div></details>
+        <details class="provider" data-country="Canada" data-search="videotron helix fi port forwarding redirection canada quebec"><summary><strong>Vidéotron — Helix Fi</strong><span>application Helix Fi</span></summary><div class="provider-body"><div><p><b>Chemin :</b> Wi-Fi → Afficher l’équipement Wi-Fi → Paramètres avancés → Redirection de port → Ajouter.</p><p>Choisis le PC puis la configuration manuelle UDP.</p></div><div><a href="https://www.videotron.com/soutien/applications/mobile/helix-fi/redirection-port" target="_blank" rel="noopener">Aide officielle Vidéotron</a></div></div></details>
+      </div>
+
+      <div class="country" data-country-group="États-Unis"><div class="country-title"><h3>États-Unis</h3><span>Xfinity · AT&amp;T · Spectrum · Verizon Fios</span></div>
+        <details class="provider" data-country="États-Unis" data-search="xfinity xfi app port forwarding usa"><summary><strong>Xfinity — xFi Gateway</strong><span>application Xfinity</span></summary><div class="provider-body"><div><p><b>Chemin :</b> WiFi → View WiFi equipment → Advanced Settings → Port forwarding → Add Port Forward.</p><p>Le PC doit utiliser IPv4 et DHCP pour apparaître correctement dans l’app.</p></div><div><a href="https://www.xfinity.com/support/articles/xfi-port-forwarding" target="_blank" rel="noopener">Aide officielle Xfinity</a></div></div></details>
+        <details class="provider" data-country="États-Unis" data-search="att all fi gateway nat gaming port forwarding usa"><summary><strong>AT&amp;T — All-Fi / BGW Gateway</strong><span>192.168.1.254</span></summary><div class="provider-body"><div><p><b>Chemin :</b> Firewall → entrer le Device Access Code → NAT/Gaming → Custom Services.</p><p>Global Port Range et Base Host Port : 28115, protocole UDP ; répète pour 28117.</p></div><div><a href="https://www.att.com/support/article/internet/000103568/" target="_blank" rel="noopener">Aide officielle AT&amp;T</a></div></div></details>
+        <details class="provider" data-country="États-Unis" data-search="spectrum my spectrum app port forwarding usa"><summary><strong>Spectrum</strong><span>application My Spectrum</span></summary><div class="provider-body"><div><p><b>Chemin indicatif :</b> Services → Network Equipment → Router → Advanced Settings → Port Forwarding.</p><p>Teste obligatoirement depuis une connexion extérieure ; le NAT loopback n’est pas garanti.</p></div><div><a href="https://www.spectrum.net/support/internet" target="_blank" rel="noopener">Assistance officielle Spectrum</a></div></div></details>
+        <details class="provider" data-country="États-Unis" data-search="verizon fios router port forwarding usa"><summary><strong>Verizon Fios — CR1000 / G3100</strong><span>myfiosgateway.com / 192.168.1.1</span></summary><div class="provider-body"><div><p><b>Chemin indicatif :</b> Advanced → Security &amp; Firewall → Port Forwarding.</p><p>Utilise des règles ciblées ; ne place pas le PC dans la DMZ.</p></div><div><a href="https://www.verizon.com/support/residential/internet/equipment/routers/verizon-router" target="_blank" rel="noopener">Aide officielle Verizon Router</a></div></div></details>
+      </div>
+
+      <div class="country" data-country-group="Australie / Nouvelle-Zélande"><div class="country-title"><h3>Australie / Nouvelle-Zélande</h3><span>Telstra · Optus · Spark · One NZ</span></div>
+        <details class="provider" data-country="Australie / Nouvelle-Zélande" data-search="telstra smart modem port forwarding australia"><summary><strong>Telstra — Smart Modem</strong><span>mymodem / 192.168.0.1</span></summary><div class="provider-body"><div><p><b>Chemin indicatif :</b> Advanced → Firewall → Port Forwarding.</p><p class="caution">Sur 5G Home Internet, vérifie d’abord l’IPv4 publique : le CGNAT est fréquent.</p></div><div><a href="https://www.telstra.com.au/support/internet-and-home-phone" target="_blank" rel="noopener">Assistance officielle Telstra</a></div></div></details>
+        <details class="provider" data-country="Australie / Nouvelle-Zélande" data-search="optus modem port forwarding australia"><summary><strong>Optus</strong><span>192.168.0.1</span></summary><div class="provider-body"><div><p><b>Chemin indicatif :</b> Advanced Settings → Network / NAT → Port Forwarding.</p><p>Les offres Fixed Wireless/5G peuvent nécessiter une IPv4 publique fournie par le support.</p></div><div><a href="https://www.optus.com.au/support/internet" target="_blank" rel="noopener">Assistance officielle Optus</a></div></div></details>
+        <details class="provider" data-country="Australie / Nouvelle-Zélande" data-search="spark smart modem port forwarding new zealand nz"><summary><strong>Spark NZ — Smart Modem</strong><span>192.168.1.254</span></summary><div class="provider-body"><div><p><b>Chemin indicatif :</b> Advanced → NAT → Virtual Server / Port Forwarding.</p><p>Crée une réservation DHCP et deux services UDP séparés.</p></div><div><a href="https://www.spark.co.nz/help/internet/" target="_blank" rel="noopener">Assistance officielle Spark</a></div></div></details>
+        <details class="provider" data-country="Australie / Nouvelle-Zélande" data-search="one nz vodafone modem port mapping new zealand"><summary><strong>One NZ</strong><span>192.168.1.1</span></summary><div class="provider-body"><div><p><b>Chemin indicatif :</b> Internet / Security → Port Mapping / Port Forwarding.</p><p class="caution">Le Wireless Broadband mobile peut être sous CGNAT ; demande une option d’IP publique ou utilise un relais UDP.</p></div><div><a href="https://one.nz/help/broadband-and-tv/modems/" target="_blank" rel="noopener">Assistance officielle One NZ</a></div></div></details>
+      </div>
+
+      <div id="empty" class="note hidden">Aucun opérateur ne correspond. Utilise la méthode générique : ouvre la passerelle indiquée par le diagnostic Windows, cherche NAT / Port forwarding / Virtual server, puis crée les règles UDP. Si le menu n’existe pas, contacte l’opérateur avec la phrase proposée plus bas.</div>
+    </section>
+
+    <section id="depannage">
+      <h2>Si tes amis ne peuvent toujours pas se connecter</h2>
+      <div class="decision">
+        <details open><summary>1 — Le serveur écoute-t-il vraiment ?</summary><p>Lance le profil amis, attends « Server startup complete », puis relance le diagnostic. Il doit afficher <span class="good">Port jeu UDP 28115 — OK</span>. Un port UDP ne peut pas être testé correctement quand Rust est arrêté.</p></details>
+        <details><summary>2 — L’IP locale a-t-elle changé ?</summary><p>Compare l’IPv4 LAN du dashboard avec la destination de la règle dans la box. Si elles diffèrent, corrige la règle et crée une réservation DHCP. Une adresse du type 192.168.x.x ou 10.x.x.x est locale, jamais l’adresse à donner aux amis.</p></details>
+        <details><summary>3 — CGNAT, DS-Lite ou double NAT ?</summary><p>Compare l’IP WAN affichée par la box avec l’IP publique du Control Center.</p><ul><li><b>Même adresse :</b> la box possède probablement l’IPv4 publique.</li><li><b>IP WAN en 10.x, 100.64.x–100.127.x, 172.16–31.x ou 192.168.x :</b> CGNAT ou routeur en amont.</li><li><b>Deux routeurs :</b> redirige sur les deux, ou place le premier en bridge/IP passthrough.</li><li><b>DS-Lite / IPv6 seulement :</b> demande une IPv4 publique ou Dual Stack.</li></ul></details>
+        <details><summary>4 — Fibre, câble, ADSL, 4G/5G ou satellite ?</summary><p>Fibre/câble/ADSL fournissent souvent une IPv4 exploitable, mais pas toujours. Les accès 4G/5G fixe et satellite utilisent fréquemment le CGNAT. Dans ce cas, une règle locale ne suffit pas : demande une IPv4 publique, une option professionnelle, ou utilise un relais/VPN qui accepte réellement l’UDP entrant. Un tunnel HTTP classique ne transporte pas un serveur Rust.</p></details>
+        <details><summary>5 — Le test est-il fait depuis le bon réseau ?</summary><p>Ne teste pas l’IP publique depuis le même Wi-Fi : certaines box ne prennent pas en charge le NAT loopback. Le test fiable est un client Rust extérieur : un ami, ou un autre PC connecté via partage 4G/5G. Dans Rust, F1 puis <code>client.connect IP_PUBLIQUE:28115</code>. Les sites « port checker » TCP ne prouvent rien pour un port Rust UDP.</p></details>
+        <details><summary>6 — Une carte custom doit-elle être téléchargée ?</summary><p>Une carte custom destinée aux amis doit être accessible par une URL HTTP/HTTPS publique directe. Une URL <code>file://</code>, un chemin Windows ou un lien nécessitant une connexion ne fonctionne que sur le PC hôte.</p></details>
+      </div>
+
+      <h2>Phrase à envoyer au support</h2>
+      <p class="lead">Copie la version de la langue de l’opérateur. Ne demande jamais l’ouverture du RCON.</p>
+      <div class="phrases">
+        <article><small>Français</small>« Je souhaite héberger un serveur de jeu UDP chez moi. Ai-je une IPv4 publique dédiée, sans CGNAT ni DS-Lite ? Si non, pouvez-vous activer une IPv4 publique ou le Dual Stack ? »</article>
+        <article><small>English</small>“I want to host a UDP game server from home. Do I have a public IPv4 address without CGNAT or DS-Lite? If not, can you enable public IPv4 or dual stack?”</article>
+        <article><small>Deutsch</small>„Ich möchte zu Hause einen UDP-Spielserver hosten. Habe ich eine öffentliche IPv4-Adresse ohne CGNAT oder DS-Lite? Falls nicht, können Sie öffentliche IPv4 oder Dual Stack aktivieren?“</article>
+        <article><small>Español</small>« Quiero alojar un servidor de juego UDP en casa. ¿Tengo una IPv4 pública sin CGNAT ni DS-Lite? Si no, ¿pueden activar IPv4 pública o Dual Stack? »</article>
+        <article><small>Italiano</small>« Vorrei ospitare un server di gioco UDP da casa. Ho un IPv4 pubblico senza CGNAT o DS-Lite? In caso contrario, potete attivare IPv4 pubblico o Dual Stack? »</article>
+        <article><small>Nederlands</small>“Ik wil thuis een UDP-gameserver hosten. Heb ik een openbaar IPv4-adres zonder CGNAT of DS-Lite? Zo niet, kunt u openbaar IPv4 of dual stack activeren?”</article>
+      </div>
+    </section>
+
+    <section id="sources">
+      <h2>Sources officielles principales</h2>
+      <p>Les fiches ci-dessus résument ces aides. Les liens opérateurs restent prioritaires en cas de changement de firmware.</p>
+      <ul class="sources">
+        <li><a href="https://assistance.orange.fr/livebox-modem/toutes-les-livebox-et-modems/installer-et-utiliser/piloter-et-parametrer-votre-materiel/le-parametrage-avance-reseau-nat-pat-ip/configurer-des-regles-nat-pat/livebox-4-configurer-les-regles-nat-pour-pouvoir-utiliser-un-jeu-ou-une-application-serveur_189538-735102">Orange France — règles NAT/PAT</a></li>
+        <li><a href="https://assistance.free.fr/articles/1395">Free — DHCP et redirection de ports</a></li>
+        <li><a href="https://assistance.sfr.fr/internet-tel-fixe/box-8/se-connecter-en-ipv6-ipv4.html">SFR — accès distant IPv4/IPv6</a></li>
+        <li><a href="https://www.proximus.be/support/en/id_sfaqr_ports_mapping/personal/support/internet/internet-at-home/advanced-settings/port-forwarding-on-your-b-box-or-internet-box.html">Proximus — port forwarding</a></li>
+        <li><a href="https://www2.telenet.be/residential/nl/klantenservice/internet/modem-en-andere-toestellen/geavanceerde-instellingen-van-je-wireless-modem.html">Telenet — paramètres avancés</a></li>
+        <li><a href="https://www.bt.com/help/broadband/learn-about-broadband/how-do-i-set-up-port-forwarding-on-my-bt-hub-">BT — port forwarding</a></li>
+        <li><a href="https://www.xfinity.com/support/articles/xfi-port-forwarding">Xfinity — xFi port forwarding</a></li>
+        <li><a href="https://www.att.com/support/article/internet/000103568/">AT&amp;T — NAT/Gaming</a></li>
+        <li><a href="https://www.videotron.com/soutien/applications/mobile/helix-fi/redirection-port">Vidéotron — Helix Fi</a></li>
+        <li><a href="https://www.movistar.es/blog/router/abrir-puertos-router-movistar/">Movistar — ouvrir des ports</a></li>
+        <li><a href="https://www.fastweb.it/myfastweb/assistenza/guide.php/FASTGate/">Fastweb — FASTGate port mapping</a></li>
+        <li><a href="https://www.ziggo.nl/klantenservice/hulp-bij-gaming/nat-port-forwarding">Ziggo — NAT port forwarding</a></li>
+        <li><a href="https://www.kpn.com/service/internet/box-12-handleiding-en-hulp-bij-problemen">KPN — Box 12</a></li>
+        <li><a href="https://www.vodafone.de/hilfe/router/station.html">Vodafone Allemagne — Station / Bridge</a></li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>Rust Server Control Center v6.0 — documentation réseau universelle hors ligne</footer>
+  <script>
+    const search = document.getElementById('search');
+    const country = document.getElementById('country');
+    const providers = [...document.querySelectorAll('.provider')];
+    const groups = [...document.querySelectorAll('[data-country-group]')];
+    const counter = document.getElementById('counter');
+    const empty = document.getElementById('empty');
+    const norm = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+    function filterProviders() {
+      const query = norm(search.value.trim());
+      const selected = country.value;
+      let visible = 0;
+      providers.forEach(provider => {
+        const haystack = norm(provider.dataset.search + ' ' + provider.dataset.country + ' ' + provider.textContent);
+        const show = (!query || haystack.includes(query)) && (!selected || provider.dataset.country === selected);
+        provider.classList.toggle('hidden', !show);
+        if (show) visible++;
+      });
+      groups.forEach(group => {
+        const count = [...group.querySelectorAll('.provider')].filter(item => !item.classList.contains('hidden')).length;
+        group.classList.toggle('hidden', count === 0);
+      });
+      counter.textContent = visible + (visible > 1 ? ' opérateurs' : ' opérateur');
+      empty.classList.toggle('hidden', visible !== 0);
+    }
+    search.addEventListener('input', filterProviders);
+    country.addEventListener('change', filterProviders);
+    document.querySelectorAll('[data-copy]').forEach(button => button.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(button.dataset.copy);
+        document.getElementById('copyStatus').textContent = 'Règles copiées.';
+      } catch {
+        const area = document.createElement('textarea'); area.value = button.dataset.copy; document.body.appendChild(area); area.select();
+        document.execCommand('copy'); area.remove(); document.getElementById('copyStatus').textContent = 'Règles copiées.';
+      }
+    }));
+    filterProviders();
+  </script>
+</body>
+</html>

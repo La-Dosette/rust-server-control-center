@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "rust-tower-defense",
+  "plugin": { "fileBase": "RustTowerDefense", "displayName": "Tower Defense", "version": "1.1.0", "category": "mode", "capabilities": ["towerdefense"] },
+  "config": { "fileName": "", "reloadOnSave": false, "settings": [] },
+  "actions": [
+    { "id": "start", "label": "LANCER UNE PARTIE", "kind": "rcon", "command": "td.force", "confirm": false },
+    { "id": "endless", "label": "LANCER ENDLESS", "kind": "rcon", "command": "td.endless", "confirm": false },
+    { "id": "wave", "label": "VAGUE SUIVANTE", "kind": "rcon", "command": "td.wave", "confirm": false },
+    { "id": "validate", "label": "VALIDER L’ARÈNE", "kind": "rcon", "command": "td.validate", "confirm": false },
+    { "id": "debug", "label": "DIAGNOSTIC", "kind": "rcon", "command": "td.debug", "confirm": false },
+    { "id": "stop", "label": "ARRÊTER LE MODE", "kind": "rcon", "command": "td.stop", "confirm": true }
+  ]
+}

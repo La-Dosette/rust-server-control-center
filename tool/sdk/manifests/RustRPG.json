@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "rust-zombie-progression",
+  "plugin": { "fileBase": "RustRPG", "displayName": "Zombies & progression", "version": "4.1.0", "category": "mode", "capabilities": ["progression"] },
+  "config": {
+    "fileName": "RustRPG.json",
+    "reloadOnSave": true,
+    "settings": [
+      { "id": "pve", "path": "BloquerDegatsEntreJoueurs", "label": "Bloquer les dégâts entre joueurs", "type": "boolean", "default": true },
+      { "id": "zombies", "path": "ZombiesSimultanes", "label": "Zombies simultanés", "type": "integer", "default": 10, "min": 1, "max": 200 },
+      { "id": "scientists", "path": "ScientifiquesSimultanes", "label": "Scientifiques simultanés", "type": "integer", "default": 4, "min": 0, "max": 100 },
+      { "id": "bosses", "path": "BossSimultanes", "label": "Boss simultanés", "type": "integer", "default": 1, "min": 0, "max": 20 },
+      { "id": "spawn-interval", "path": "IntervalleApparitionSecondes", "label": "Intervalle d’apparition", "description": "Secondes entre deux tentatives d’apparition.", "type": "number", "default": 8, "min": 1, "max": 120 },
+      { "id": "waves", "path": "ZombieVaguesMaximum", "label": "Nombre de vagues", "type": "integer", "default": 10, "min": 1, "max": 100 },
+      { "id": "base-wave", "path": "ZombiesBaseParVague", "label": "Zombies de base par vague", "type": "integer", "default": 8, "min": 1, "max": 200 },
+      { "id": "wave-delay", "path": "PauseEntreVaguesSecondes", "label": "Pause entre les vagues", "type": "integer", "default": 25, "min": 5, "max": 300 },
+      { "id": "enemy-cap", "path": "ZombiePlafondEnnemis", "label": "Plafond d’ennemis", "type": "integer", "default": 60, "min": 5, "max": 300 },
+      { "id": "hud", "path": "ZombieAfficherHud", "label": "Afficher le HUD Zombie", "type": "boolean", "default": true },
+      { "id": "boss-frequency", "path": "ZombieEndlessBossTousLes", "label": "Boss endless toutes les vagues", "type": "integer", "default": 5, "min": 1, "max": 50 }
+    ]
+  },
+  "actions": [
+    { "id": "status", "label": "ÉTAT ZOMBIE", "kind": "rcon", "command": "zombie", "confirm": false },
+    { "id": "start", "label": "LANCER UNE VAGUE", "kind": "rcon", "command": "zombie.force", "confirm": false },
+    { "id": "endless", "label": "LANCER ENDLESS", "kind": "rcon", "command": "zombie.endless", "confirm": false },
+    { "id": "debug", "label": "DIAGNOSTIC", "kind": "rcon", "command": "zombie.debug", "confirm": false },
+    { "id": "stop", "label": "ARRÊTER LE MODE", "kind": "rcon", "command": "zombie.stop", "confirm": true }
+  ]
+}

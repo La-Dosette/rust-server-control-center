@@ -1,0 +1,70 @@
+RUST SERVER CONTROL CENTER V8 - PREMIERS PAS
+==============================================
+
+1. Double-clique sur LANCER-CONTROL-CENTER.vbs.
+2. L'accueil s'ouvre en MODE SIMPLE.
+3. Clique sur INSTALLER pour télécharger Rust Dedicated avec SteamCMD.
+4. Après l'installation, clique sur DÉMARRER.
+5. Quand l'état devient ACTIF, clique sur OUVRIR RUST.
+
+JOUER AVEC DES AMIS
+-------------------
+1. Ouvre JOUER AVEC DES AMIS dans la barre de gauche.
+2. Lance le diagnostic réseau.
+3. Autorise les ports Jeu et Query UDP de l'instance publique dans le pare-feu.
+4. Redirige ces mêmes ports UDP dans le routeur vers l'adresse IPv4 locale du PC.
+5. Ne redirige jamais le port RCON : il doit rester sur 127.0.0.1.
+6. Copie la commande client.connect et envoie-la aux amis.
+
+Le guide GUIDE-RESEAU-UNIVERSEL.html contient des indications par pays et opérateur.
+Une connexion mobile ou certains abonnements utilisent le CGNAT : dans ce cas, une
+IPv4 publique, un tunnel de jeu ou un hébergeur externe peut être nécessaire.
+
+MODS ET MODES
+-------------
+La première installation est vanilla. Ouvre MODS & MODES pour installer Carbon,
+puis importe uniquement les plugins voulus. Les pages de modes apparaissent quand
+les plugins compatibles sont réellement détectés.
+
+MODE AVANCÉ
+-----------
+Le bouton MODE AVANCÉ donne accès aux cartes, wipes, sauvegardes, configurations,
+joueurs, statistiques, RCON, ports, logs et aux outils ci-dessous.
+
+SUPERVISION
+-----------
+- Suit le CPU, la mémoire, la disponibilité, RCON et les erreurs par instance.
+- La relance automatique est facultative, temporisée et plafonnée par heure.
+- ACTIVER EN ARRIÈRE-PLAN crée un watchdog Windows. Laisse-le désactivé pendant
+  tes tests si tu ne veux aucune relance automatique.
+
+CATALOGUE DE PLUGINS
+--------------------
+- Le catalogue n'invente aucun plugin : ajoute une source JSON HTTPS de confiance.
+- Les dépendances sont résolues avant installation. Une empreinte SHA-256 est
+  vérifiée lorsque la source en fournit une.
+- Carbon doit être présent dans le runtime de l'instance cible.
+
+MULTI-INSTANCE ET ISOLATION
+---------------------------
+- Plusieurs serveurs vanilla peuvent partager le même Rust Dedicated grâce à
+  server.identity, avec quatre ports uniques par instance.
+- Pour plusieurs serveurs Carbon simultanés, choisis RUNTIME COMPLET ISOLÉ sur
+  chaque instance, puis installe son runtime séparé. Prévois 15 à 20 Go de disque
+  et environ 5 à 8 Go de RAM par serveur, parfois davantage.
+
+ACCÈS DISTANT
+-------------
+- Désactivé par défaut et lié à CE PC UNIQUEMENT.
+- Génère un jeton chiffré, puis installe le service seulement si nécessaire.
+- Pour l'extérieur, utilise un VPN ou un proxy HTTPS authentifié. Ne redirige
+  jamais directement le port web ni le port RCON vers Internet.
+
+LANGUES
+-------
+Le français et l'anglais sont disponibles dans le sélecteur du Mode avancé.
+
+DONNÉES LOCALES
+---------------
+Les serveurs, mondes, sauvegardes, logs et secrets sont créés dans ce dossier.
+Ils sont exclus de Git par le fichier .gitignore. Ne publie jamais ces données.
